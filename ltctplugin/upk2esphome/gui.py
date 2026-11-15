@@ -67,6 +67,10 @@ class UpkPanel(BasePanel, ZeroconfBase):
             "wifi_password": self.BindTextCtrl("opts_wifi_password"),
             "ota_password": self.BindTextCtrl("opts_ota_password"),
             "api_password": self.BindTextCtrl("opts_api_password"),
+            "xr806_standby": self.BindCheckBox("opts_xr806_standby"),
+            "xr806_wlan_connected": self.BindCheckBox("opts_xr806_wlan_connected"),
+            "xr806_mcu_wake_pin": self.BindCheckBox("opts_xr806_mcu_wake_pin"),
+            "xr806_dtim": self.BindTextCtrl("opts_xr806_dtim"),
         }
         self.BindButton("button_generate", self.OnGenerateClick)
         self.BindButton("button_esphome_copy", self.OnEsphomeCopyClick)

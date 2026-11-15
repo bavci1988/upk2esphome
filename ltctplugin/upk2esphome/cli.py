@@ -29,10 +29,13 @@ def add_options():
         short = key[0]
         long = key.replace("_", "-")
         default = getattr(default_opts, key)
+        # the XR806 options get no short form; "-x" would be taken several times
+        names = [f"--{long}/--no-{long}"]
+        if not key.startswith("xr806"):
+            names.insert(0, f"-{short}/-{short.upper()}")
         options.append(
             click.option(
-                f"-{short}/-{short.upper()}",
-                f"--{long}/--no-{long}",
+                *names,
                 help=f"{value} (default: {default})",
                 default=default,
             )
@@ -44,10 +47,12 @@ def add_options():
             # use s/p for ssid and password
             short = key[5]
         default = getattr(default_opts, key)
+        names = [f"--{long}"]
+        if not key.startswith("xr806"):
+            names.insert(0, f"-{short.upper()}")
         options.append(
             click.option(
-                f"-{short.upper()}",
-                f"--{long}",
+                *names,
                 help=f"{value} (default: '{default}')",
                 default=default,
             )

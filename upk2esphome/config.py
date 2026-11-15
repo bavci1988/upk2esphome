@@ -86,9 +86,17 @@ class ConfigData:
         return slug and slug.lower()
 
     @property
+    def xr806(self) -> dict | None:
+        """XR806 dump details added by the dump reader (low power, product info)."""
+        value = self.data.get("xr806", None)
+        return value if isinstance(value, dict) else None
+
+    @property
     def chip_name(
         self,
-    ) -> Literal["BK7231T"] | Literal["BK7231N"] | Literal["?"] | None:
+    ) -> Literal["BK7231T", "BK7231N", "XR806", "?"] | None:
+        if self.xr806 is not None:
+            return "XR806"
         module = self.upk.get("module", "")
         if module:
             match module[0:2].upper():

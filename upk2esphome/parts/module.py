@@ -12,6 +12,14 @@ BOARDS = {
 
 def generate(yr: YamlResult, config: ConfigData, opts: Opts):
     chip_name = config.chip_name
+    if chip_name == "XR806":
+        yr.log("Found XR806 (Tuya WXU) config!")
+        if opts.esphome_block:
+            yr.data["esphome"] = {"name": "upk2esphome-xr806"}
+            if opts.name_mac:
+                yr.data["esphome"]["name_add_mac_suffix"] = True
+            yr.data["xr806"] = {"board": "wxu"}
+        return
     board = BOARDS.get(chip_name)
     if not board:
         board = "REPLACEME"

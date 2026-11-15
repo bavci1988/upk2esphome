@@ -98,18 +98,32 @@ class UpkThread(BaseThread):
         if size > 0x400000:
             # file too large
             raise RuntimeError(f"File larger than 4 MiB ({size}), refusing to load!")
-        if size == 0x200000:
-            # probably full flash dump
-            with open(file, "rb") as f:
-                # seek to approx. storage start (plus a fix for BkWriter etc.)
-                f.seek(0x1E0000 - 0x11000)
-                data = f.read()
-            self.run_data(data)
-            return
-        # try to search the entire file
         with open(file, "rb") as f:
-            data = f.read()
+            full = f.read()
+        # an XR806 (Tuya WXU) image starts with the AWIH header of its bootloader
+        if full[0:4] == b"AWIH" and self.run_xr806(full):
+            return
+        # a full BK dump: start at approx. storage start (plus a fix for BkWriter etc.)
+        data = full[0x1E0000 - 0x11000 :] if size == 0x200000 else full
         self.run_data(data)
+
+    def run_xr806(self, data: bytes) -> bool:
+        """Parse the Tuya storage of an XR806 dump with ltchiptool's reader."""
+        try:
+            from ltchiptool.soc.xr806.util.tuyakv import (
+                detect_low_power,
+                read_tuya_storage,
+            )
+        except ImportError:
+            debug("ltchiptool has no XR806 support")
+            return False
+        storage = read_tuya_storage(data)
+        if storage is None:
+            return False
+        storage["xr806"] = dict(low_power=detect_low_power(data, storage))
+        debug(f"Found XR806 storage with {len(storage) - 1} keys")
+        self.on_storage(storage)
+        return True
 
     def run_data(self, data: bytes):
         # parse raw storage

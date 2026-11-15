@@ -83,9 +83,10 @@ def upk2esphome(
         static,
         switch,
         tuyamcu,
+        xr806,
     )
 
-    parts = [module, static, bulb, switch, netled, remote, monitor, tuyamcu, key]
+    parts = [module, static, bulb, switch, netled, remote, monitor, tuyamcu, key, xr806]
     yr = YamlResult()
 
     try:

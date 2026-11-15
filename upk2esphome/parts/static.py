@@ -13,11 +13,14 @@ def generate(yr: YamlResult, config: ConfigData, opts: Opts):
         yr.data["captive_portal"] = {}
         yr.data["mdns"] = {}
     if opts.common:
-        yr.data["api"] = {"password": opts.api_password}
-        yr.data["ota"] = {
-            "platform": "esphome",
-            "password": opts.ota_password,
-        }
+        if opts.api_password:
+            yr.data["api"] = {"password": opts.api_password}
+        else:
+            # ESPHome 2026.1 removed the API password; use encryption instead
+            yr.data["api"] = {"encryption": {"key": "!secret api_encryption_key"}}
+        yr.data["ota"] = {"platform": "esphome"}
+        if opts.ota_password:
+            yr.data["ota"]["password"] = opts.ota_password
         yr.data["wifi"] = {
             "ssid": opts.wifi_ssid,
             "password": opts.wifi_password,
@@ -46,7 +49,7 @@ def generate(yr: YamlResult, config: ConfigData, opts: Opts):
                 "name": "Uptime",
             }
         )
-    if opts.lt_version:
+    if opts.lt_version and config.chip_name != "XR806":
         yr.text_sensor(
             {
                 "platform": "libretiny",
