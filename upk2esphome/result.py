@@ -32,7 +32,9 @@ class YamlResult:
 
     @property
     def text(self) -> str:
-        text = yaml.dump(self.data, sort_keys=False, Dumper=MyDumper)
+        text = yaml.dump(
+            self.data, sort_keys=False, Dumper=MyDumper, allow_unicode=True
+        )
         text = re.sub(r"'!(\w+) (.+)'", r"!\1 \2", text)
         text = re.sub(r"\n([a-z])", r"\n\n\1", text)
         text = text.replace("'", '"')

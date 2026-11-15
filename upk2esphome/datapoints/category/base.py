@@ -102,12 +102,20 @@ def process_rw(yr: YamlResult, opts: Opts, dp: Datapoint, mapping: dict) -> bool
                 **get_mapping(yr, opts, dp, mapping),
                 **get_unit(yr, opts, dp, mapping),
             }
+            # the MCU sends value * 10^scale; tuya number divides by multiply
+            factor = 10 ** (dp.spec.scale or 0)
             if dp.spec.min is not None:
-                number["min_value"] = dp.spec.min
+                number["min_value"] = (
+                    dp.spec.min / factor if factor > 1 else dp.spec.min
+                )
             if dp.spec.max is not None:
-                number["max_value"] = dp.spec.max
+                number["max_value"] = (
+                    dp.spec.max / factor if factor > 1 else dp.spec.max
+                )
             if dp.spec.step is not None:
-                number["step"] = dp.spec.step
+                number["step"] = dp.spec.step / factor if factor > 1 else dp.spec.step
+            if factor > 1:
+                number["multiply"] = factor
             yr.number(number)
             yr.found = True
             return True

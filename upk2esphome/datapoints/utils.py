@@ -50,7 +50,9 @@ def get_unit(
         if unit in mapping:
             unit = get_str_mapping(mapping, unit)
         else:
-            unit = re.sub(r"[^\x20-\x7F]", "", unit)
+            # Tuya often uses the single-character degree signs
+            unit = unit.replace("\u2103", "°C").replace("\u2109", "°F")
+            unit = re.sub(r"[^\x20-\x7F°µ]", "", unit)
         return dict(unit_of_measurement=unit)
     return dict()
 
